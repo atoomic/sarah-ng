@@ -3,7 +3,13 @@
 my $snapserver = q{mezza.pi.eboxr.com};
 my $port       = 1705;
 
-my $req = {'jsonrpc' => '2.0', 'method' => 'Server.GetStatus', 'id' => 1};
+my $client = q{b8:27:eb:27:f6:c4};
+my $volume = 100;
+
+my $req = {'jsonrpc' => '2.0', 'method' => 'Client.SetVolume', 
+	'params' => {'client' =>  $client, 'volume' => $volume}, 
+	'id' => 1 # request id
+};
 
 use JSON::XS;
 use Net::Telnet;
@@ -13,10 +19,16 @@ my $json = JSON::XS->new->utf8->encode( $req );
 
 $t = Net::Telnet->new(Timeout => 10, Prompt => "/\n/" );
 $t->open(Host => $snapserver, Port => $port) or die;
-#$t->login($username, $passwd);
+
 my ($reply) = $t->cmd($json . "\r\n");
+
 my $results = JSON::XS->new->utf8->decode( $reply );
-print Dumper($results->{result}{clients});
+$t->close;
+
+print Dumper($results);
+
+# http://www.hongkiat.com/blog/jquery-volumn-slider/
+# http://loopj.com/jquery-simple-slider/
 
 #setVolume(client.host.mac, newValue);
 
